@@ -149,7 +149,8 @@ export default function ForgotPassword() {
             <button 
             onClick={handleConfirmToken}
             type="button"
-            className="w-1/2 self-stretch px-4 py-3 mt-4 mx-auto text-xl text-white bg-pink-500 rounded-[33px]">
+            className="w-1/2 self-stretch px-4 py-3 mt-4 mx-auto text-xl text-white bg-pink-500 rounded-[33px]
+            hover:bg-[rgba(232,240,254,0.5)] hover:text-pink-500 hover:border-pink-500 border-2 hover:transition-all duration-500 ease-in-out">
                 {loadingConfirmation ?
                     <FaSpinner fill='blue' size={30} className='animate-spin m-auto' />
                 : 'Confirm Token'}
@@ -159,9 +160,10 @@ export default function ForgotPassword() {
 
             <button 
             type="submit"
-            className="w-1/2 self-stretch px-4 py-3 mt-4 mx-auto text-xl text-white bg-pink-500 rounded-[33px]">
+            className="w-1/2 self-stretch px-4 py-3 mt-4 mx-auto text-xl text-white bg-pink-500 rounded-[33px]
+            hover:bg-[rgba(232,240,254,0.5)] hover:text-pink-500 hover:border-pink-500 border-2 hover:transition-all duration-500 ease-in-out">
                 {loading ?
-                    <FaSpinner fill='blue' size={30} className='animate-spin m-auto' />
+                    <FaSpinner fill='white' size={30} className='animate-spin m-auto' />
                 : 'Forgot Password'}
             </button>
             </form>

@@ -133,9 +133,10 @@ function ResetPassword() {
       </div> */}
       <button 
       type="submit"
-      className="w-1/2 self-stretch px-4 py-3 mt-4 mx-auto text-xl text-white bg-pink-500 rounded-[33px]">
+      className="w-1/2 self-stretch px-4 py-3 mt-4 mx-auto text-xl text-white bg-pink-500 rounded-[33px]
+      hover:bg-[rgba(232,240,254,0.5)] hover:text-pink-500 hover:border-pink-500 border-2 hover:transition-all duration-500 ease-in-out">
         {loadingReset ?
-                    <FaSpinner fill='blue' size={30} className='animate-spin m-auto' />
+                    <FaSpinner fill='white' size={30} className='animate-spin m-auto' />
           : 'Reset Password'}
       </button>
       {/* <div className="flex gap-2 mt-4 max-w-full tracking-normal leading-none w-[175px]">

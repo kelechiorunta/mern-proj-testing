@@ -62,7 +62,7 @@ export default function MainHeader() {
             <Link 
             // className={`${pathname==='/contact' && 'active animate-bounce'}`}
             to={'/contact'}>
-                Contact
+               Tailor Contact
             </Link>
         </nav>
         <nav 

@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import ForgotPassword from './components/ForgotPassword';
 import Signup from './components/Signup';
 import SuggestedTailor from './components/SuggestedTailor';
+import OptimizedSuggestedTailor from './components/OptimizedSuggestedTailor';
 
 function App() {
   const { token } = useParams()
@@ -20,6 +21,8 @@ function App() {
         <Route path={`/auth/reset-password/`} element={<ResetPassword/>} />
         <Route path='/auth/login-user/' element={<Login/>} />
         <Route path='/tailors/' element={<SuggestedTailor/>} />
+        <Route path='/tailors/' element={<SuggestedTailor/>} />
+        <Route path='/contact' element={<OptimizedSuggestedTailor/>} />
         <Route path='/' element={<Counter/>} />
       </Routes>
       {/* <Counter/> */}

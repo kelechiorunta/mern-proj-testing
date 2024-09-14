@@ -18,9 +18,24 @@ function Login() {
     setCredentials((prev) => ({ ...prev, [name]: value }));
   };
 
+  var timerId_one, timerId_two;
+
+  const sideAction = () => {
+    return new Promise((res, rej) => {
+        timerId_one = setTimeout(res, 3000)
+    }).then((res)=>setShowModal(true))
+    .then((res)=>{timerId_two = setTimeout(()=>{setShowModal(false); 
+        clearTimeout(timerId_one); clearTimeout(timerId_two)}, 6000); })
+    // .then((res)=>clearTimeout(timerId_two))   
+}
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorReg(''||null)
+    setSuccessReg(''||null)
     setLoading(true)
+    await sideAction();
+    var timerId;
     try {
       const response = await axios.post("http://localhost:8000/auth/login-user", {
         email: credentials.email,
@@ -28,7 +43,8 @@ function Login() {
       });
       console.log(response.data);
       setSuccessReg(response.data?.success);
-      navigate("/");
+      timerId = setTimeout(()=>{navigate('/'); clearTimeout(timerId)}, 3000)
+      // navigate("/");
     } catch (err) {
       console.error(err?.response?.data?.error);
       setErrorReg(err?.response?.data?.error);
@@ -96,7 +112,7 @@ function Login() {
            text-xl text-white bg-pink-500 rounded-[33px]
            hover:bg-[rgba(232,240,254,0.5)] hover:text-pink-500 hover:border-pink-500 border-2 hover:transition-all duration-500 ease-in-out">
           {loading ?
-                    <FaSpinner fill='pink' size={30} className='animate-spin m-auto' />
+            <FaSpinner fill='pink' size={30} className='animate-spin m-auto' />
                     :
             'Log in'
           }
@@ -112,7 +128,7 @@ function Login() {
 
       {/* Modal for displaying errors */}
       <Modal isOpen={showModal} onClose={closeModal}>
-        <p className="text-red-600 mx-auto w-auto">{errorReg}</p>
+        <p className="text-red-600 mx-auto w-auto">{successReg || errorReg || 'Loading...'}</p>
       </Modal>
     </>
   );

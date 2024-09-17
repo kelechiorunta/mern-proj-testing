@@ -7,16 +7,19 @@ import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import { BrowserRouter } from 'react-router-dom';
 import MainHeader from './components/MainHeader';
+import AuthContextComponent from './components/AuthContextComponent';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Provider store={store}>
-        <MainHeader/>
-        <App />
-      </Provider>
-    </BrowserRouter>
+    <AuthContextComponent>
+      <BrowserRouter>
+        <Provider store={store}>
+          <MainHeader/>
+          <App />
+        </Provider>
+      </BrowserRouter>
+    </AuthContextComponent>
   </React.StrictMode>
 );
 

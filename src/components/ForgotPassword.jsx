@@ -51,9 +51,10 @@ export default function ForgotPassword() {
                     email: credentials.email, // You can include this in the body if required by the server
                 },
                 {
-                    headers: {
-                        'Cache-Control': 'no-cache', // Optional, if caching is an issue
-                    },
+                    withCredentials:true,
+                    // headers: {
+                    //     'Cache-Control': 'no-cache', // Optional, if caching is an issue
+                    // },
                 }
             );
 
@@ -76,7 +77,7 @@ export default function ForgotPassword() {
         await sideAction()
         var timerId;
         try {
-          const response = await axios.post('http://localhost:8000/auth/confirm-token', { email: credentials.email, token });
+          const response = await axios.post('http://localhost:8000/auth/confirm-token', { email: credentials.email, token }, {withCredentials:true});
             console.log('Token validated! You can now reset your password.');
             setSuccessReg(response.data?.success);
             // await sideAction().then((res)=>

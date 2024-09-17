@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Modal from './Modal'; // Import the Modal component
 import { FaSpinner } from "react-icons/fa";
+// import useSignIn from 'react-auth-kit/hooks/useSignIn'
+import useSignIn  from 'react-auth-kit/hooks/useSignIn'
+import useAuth from "./custom_hooks/useAuth";
+import { authContext } from "./AuthContextComponent";
+import GoogleLogin from "./GoogleLogin";
 
 function Login() {
+  const {authUser, setAuthUser, setAuthUserToken} = useContext(authContext)
   const { token } = useParams();
   const navigate = useNavigate();
   const [errorReg, setErrorReg] = useState(null);
@@ -12,10 +18,17 @@ function Login() {
   const [showModal, setShowModal] = useState(false); // State for the modal visibility
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false)
+  const signIn = useSignIn();
+  const { handleAuthLogin, loggedInUser } = useAuth()
+  const [user, setUser] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCredentials((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
   };
 
   var timerId_one, timerId_two;
@@ -40,8 +53,29 @@ function Login() {
       const response = await axios.post("http://localhost:8000/auth/login-user", {
         email: credentials.email,
         password: credentials.password,
-      });
-      console.log(response.data);
+      }, {withCredentials:true});
+      await handleAuthLogin(credentials.email, credentials.password)
+      setAuthUser(response.data?.currentUser)
+      setAuthUserToken(response.data?.token)
+      // // Use the token and userState to log in
+      // const signInResult = signIn({
+      //   token: response.data?.currentUser?.otp, // Store the token
+      //   expiresIn: 3600, // Optional: set expiration in seconds (1 hour in this case)
+      //   tokenType: "Bearer", // Optional: specify token type
+      //   authState: {
+      //     name: response.data?.currentUser?.name,
+      //     uid: response.data?.currentUser?._id,
+      //   },
+      // });
+
+      // if (signInResult) {
+      //   console.log("User signed in successfully");
+      //   setSuccessReg(response.data?.success);
+      //   setTimeout(() => navigate('/'), 3000); // Redirect after login
+      // } else {
+      //   setErrorReg("Failed to log in.");
+      // }
+      console.log(response.data?.currentUser);
       setSuccessReg(response.data?.success);
       timerId = setTimeout(()=>{navigate('/'); clearTimeout(timerId)}, 3000)
       // navigate("/");
@@ -53,10 +87,6 @@ function Login() {
     finally{
       setLoading(false)
     }
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
   };
 
   return (
@@ -106,7 +136,7 @@ function Login() {
         type="password"/>
       </div>
         
-        <button 
+        {/* <button 
           type="submit"
           className="w-max self-stretch px-16 py-3 mt-8 mx-auto
            text-xl text-white bg-pink-500 rounded-[33px]
@@ -116,7 +146,13 @@ function Login() {
                     :
             'Log in'
           }
-        </button>
+        </button> */}
+
+        <div className='bg-blue-600 mt-4 w-auto text-white container m-auto max-w-full'>
+          <GoogleLogin setUser={setUser}></GoogleLogin>
+            {user && user.username}
+				    {user && user.email}
+        </div>
 
         <Link className="p-2 italic text-xl mt-4 text-black" to={'/auth/register'}>
           Register as a New User
@@ -128,7 +164,7 @@ function Login() {
 
       {/* Modal for displaying errors */}
       <Modal isOpen={showModal} onClose={closeModal}>
-        <p className="text-red-600 mx-auto w-auto">{successReg || errorReg || 'Loading...'}</p>
+        <p className="text-red-600 mx-auto w-auto">{ successReg || errorReg || 'Loading...'}</p>
       </Modal>
     </>
   );

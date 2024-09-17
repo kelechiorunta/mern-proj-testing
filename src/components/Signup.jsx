@@ -27,10 +27,10 @@ export default function Signup() {
                 username: credentials.name,
                 email: credentials.email,
                 password: credentials.password,
-              },{
-                headers: {
-                    'Cache-Control': 'no-cache' // Make sure caching is disabled in request
-                }
+              },{withCredentials: true
+                // headers: {
+                //     'Cache-Control': 'no-cache' // Make sure caching is disabled in request
+                // }
         })
               
             console.log(response.data)

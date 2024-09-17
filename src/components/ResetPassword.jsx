@@ -51,7 +51,7 @@ function ResetPassword() {
                 changePassword: credentials.changePassword,
                 confirmPassword: credentials.confirmPassword
             },
-            {
+            { withCredentials: true,
             // headers: {
             //     'Authorization': `Bearer ${token}` // Send the token in the Authorization header
             //   }
@@ -64,6 +64,7 @@ function ResetPassword() {
         catch(err){
             console.error("Failed")
             setErrorReg(err?.response?.data?.error)
+            timerId = setTimeout(()=>{navigate(err?.response?.data?.path); clearTimeout(timerId)}, 3000)
         }
         finally {
           setLoadingReset(false); // Stop the spinner

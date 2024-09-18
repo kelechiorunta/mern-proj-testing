@@ -1,9 +1,13 @@
-
-import React, { useState } from 'react'
-import { FaHamburger } from 'react-icons/fa'
+import React, { useContext, useState } from 'react'
+import { FaHamburger, FaSpinner } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+import Modal from './Modal'
+import AuthContextComponent, { authContext } from './AuthContextComponent'
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const parentVariant = {
     hidden: {opacity:0, x:0, y:-200},
@@ -27,10 +31,61 @@ export default function MainHeader() {
         setToggle(!toggle)
     }
 
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false)
+    const [errorReg, setErrorReg] = useState(null);
+    const [successReg, setSuccessReg] = useState(null);
+    const [showModal, setShowModal] = useState(false); // State for the modal visibility
+    const [storedUser, setStoredUser] = useState(JSON.parse(localStorage.getItem('currentUser')))
+    const { authUser, setAuthUser } = useContext(authContext)
+
+    const closeModal = () => {
+        setShowModal(false);
+      };
+      
+
+    var timerId_one, timerId_two;
+
+  const sideAction = () => {
+    return new Promise((res, rej) => {
+        timerId_one = setTimeout(res, 3000)
+    }).then((res)=>setShowModal(true))
+    .then((res)=>{timerId_two = setTimeout(()=>{setShowModal(false); 
+    clearTimeout(timerId_one); clearTimeout(timerId_two)}, 6000); }) 
+}
+
+    const handlelogout = async() => {
+        
+        setErrorReg(''||null)
+        setSuccessReg(''||null)
+        setLoading(true)
+        await sideAction();
+        var timerId;
+        try{
+            const response = await axios.get('http://localhost:8000/auth/logout', {withCredentials: true})
+            console.log(response.data?.success)
+            
+            setSuccessReg(`${authUser?.username}`+ response.data.success)
+           localStorage.removeItem('currentUser')
+           setStoredUser(null)
+           setAuthUser(null)
+            // setShowModal(true);
+            navigate(response?.data?.path || '/auth/login-user/'); 
+            // timerId = setTimeout(()=>{navigate(response?.data?.path); clearTimeout(timerId)}, 3000)
+        }   
+        catch(err){
+            setSuccessReg(err.response.data.error)
+            console.error("Unable to logout")
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
   return (
     <header className='max-w-full flex justify-between items-center text-white text-xl container
     bg-[#1e4548] py-3 px-8 z-20 sticky top-0'>
-        {/* <Ima
+        {/* <Image
         className='container max-w-[60px] w-[30%] h-[30%]'
         width={44}
         height={44}
@@ -44,11 +99,20 @@ export default function MainHeader() {
             to={'/'}>
                 Home
             </Link>
-            <Link 
-            // className={`${pathname==='/product' && 'active animate-bounce'}`}
-            to={'/auth/login-user'}>
-                Login
-            </Link>
+            
+            <button 
+            onClick={(authUser || localStorage.getItem('currentUser')) && handlelogout}
+            className={`uppercase ${loading && ' transition-all duration-200 ease-in-out animate-bounce bg-transparent font-semibold '}`}
+            >
+            {/* // {(!authUser || !localStorage.getItem('currentUser')) && '/auth/login-user'}> */}
+            {
+            // <Skeleton height={'auto'} width={100} className='animate-pulse m-auto'/>
+            // <FaSpinner fill='white' size={30} className='animate-spin m-auto w-max'/>  */}
+            //  : 
+            authUser || localStorage.getItem('currentUser') ? 'Logout' : 'Login'
+            }
+            </button>
+            
             <Link 
             // className={`${pathname==='/product' && 'active animate-bounce'}`}
             to={'/auth/register'}>
@@ -56,13 +120,13 @@ export default function MainHeader() {
             </Link>
             <Link 
             // className={`${pathname==='/about' && 'active animate-bounce'}`}
-            to={'/tailors'}>
-                Tailors
+            to={'/chat'}>
+                Chat
             </Link>
             <Link 
             // className={`${pathname==='/contact' && 'active animate-bounce'}`}
-            to={'/contact'}>
-                Contact
+            to={'/inbox'}>
+               Inbox
             </Link>
         </nav>
         <nav 
@@ -95,6 +159,11 @@ export default function MainHeader() {
                 </motion.nav>
             }
         </nav>
+        {/* Modal for displaying errors */}
+        
+        <Modal isOpen={showModal} onClose={closeModal}>
+            <p className="text-red-600 mx-auto w-auto">{ successReg || errorReg || 'Loading...'}</p>
+        </Modal>
     </header>
   )
 }

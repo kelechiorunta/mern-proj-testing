@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Modal from './Modal'; // Import the Modal component
 import { FaSpinner } from "react-icons/fa";
+// import useSignIn from 'react-auth-kit/hooks/useSignIn'
+import useSignIn  from 'react-auth-kit/hooks/useSignIn'
+import useAuth from "./custom_hooks/useAuth";
+import { authContext } from "./AuthContextComponent";
+import GoogleLogin from "./GoogleLogin";
+import { FaGoogle } from "react-icons/fa6";
 
 function Login() {
+  const {authUser, setAuthUser, setAuthUserToken} = useContext(authContext)
   const { token } = useParams();
   const navigate = useNavigate();
   const [errorReg, setErrorReg] = useState(null);
@@ -12,23 +19,67 @@ function Login() {
   const [showModal, setShowModal] = useState(false); // State for the modal visibility
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false)
+  const signIn = useSignIn();
+  const { handleAuthLogin, loggedInUser } = useAuth()
+  const [user, setUser] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCredentials((prev) => ({ ...prev, [name]: value }));
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  var timerId_one, timerId_two;
+
+  const sideAction = () => {
+    return new Promise((res, rej) => {
+        timerId_one = setTimeout(res, 3000)
+    }).then((res)=>setShowModal(true))
+    .then((res)=>{timerId_two = setTimeout(()=>{setShowModal(false); 
+        clearTimeout(timerId_one); clearTimeout(timerId_two)}, 6000); })
+    // .then((res)=>clearTimeout(timerId_two))   
+}
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorReg(''||null)
+    setSuccessReg(''||null)
     setLoading(true)
+    await sideAction();
+    var timerId;
     try {
       const response = await axios.post("http://localhost:8000/auth/login-user", {
         email: credentials.email,
         password: credentials.password,
-      });
-      console.log(response.data);
+      }, {withCredentials:true});
+      await handleAuthLogin(credentials.email, credentials.password)
+      setAuthUser(response.data?.currentUser)
+      setAuthUserToken(response.data?.token)
+      // // Use the token and userState to log in
+      // const signInResult = signIn({
+      //   token: response.data?.currentUser?.otp, // Store the token
+      //   expiresIn: 3600, // Optional: set expiration in seconds (1 hour in this case)
+      //   tokenType: "Bearer", // Optional: specify token type
+      //   authState: {
+      //     name: response.data?.currentUser?.name,
+      //     uid: response.data?.currentUser?._id,
+      //   },
+      // });
+
+      // if (signInResult) {
+      //   console.log("User signed in successfully");
+      //   setSuccessReg(response.data?.success);
+      //   setTimeout(() => navigate('/'), 3000); // Redirect after login
+      // } else {
+      //   setErrorReg("Failed to log in.");
+      // }
+      console.log(response.data?.currentUser);
       setSuccessReg(response.data?.success);
-      navigate("/");
+      timerId = setTimeout(()=>{navigate('/'); clearTimeout(timerId)}, 3000)
+      // navigate("/");
     } catch (err) {
       console.error(err?.response?.data?.error);
       setErrorReg(err?.response?.data?.error);
@@ -39,14 +90,10 @@ function Login() {
     }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-  };
-
   return (
     <>
-      <form 
-        onSubmit={handleLogin}
+      <div 
+        // onSubmit={handleLogin}
         className="container max-w- shadow-2xl rounded flex 
         overflow-hidden flex-col items-center px-7 py-20 mx-auto w-full text-xl bg-white max-w-[480px]">
         
@@ -56,7 +103,7 @@ function Login() {
        <div className="mt-7 text-2xl font-medium tracking-tight leading-none text-blue-950">
          Please sign in...
        </div>
-       <div className="w-full flex gap-8 self-center py-0 pl-2 mt-8 ml-3.5 tracking-normal leading-none whitespace-nowrap bg-[#ec4899] rounded-2xl border shadow-pink-500 shadow-sm border-solid text-blue-950 text-opacity-80 xsm:max-[400px]:mx-auto">
+       <div className="w-[90%] flex gap-8 self-center py-0 pl-2 mt-8 ml-3.5 tracking-normal leading-none whitespace-nowrap bg-[#ec4899] rounded-2xl border shadow-pink-500 shadow-sm border-solid text-blue-950 text-opacity-80 xsm:max-[400px]:mx-auto">
      {/* //   className="flex gap-10 self-center py-3.5 pr-52 pl-7 mt-16 -mr-1 ml-3 tracking-normal leading-none whitespace-nowrap bg-white rounded-2xl border border-pink-500 border-solid text-blue-950 text-opacity-80"> */}
          <img
           loading="lazy"
@@ -72,7 +119,7 @@ function Login() {
         onChange={handleChange}
         type="email"/>
       </div>
-      <div className="w-full flex gap-8 self-center py-0 pl-2 mt-8 ml-3.5 tracking-normal leading-none whitespace-nowrap bg-[#ec4899] rounded-2xl border shadow-pink-500 shadow-sm text-blue-950 text-opacity-80 xsm:max-[400px]:mx-auto">
+      <div className="w-[90%] flex gap-8 self-center py-0 pl-2 mt-8 ml-3.5 tracking-normal leading-none whitespace-nowrap bg-[#ec4899] rounded-2xl border shadow-pink-500 shadow-sm text-blue-950 text-opacity-80 xsm:max-[400px]:mx-auto">
     {/* //   className="flex gap-10 self-center py-3.5 pr-52 pl-7 mt-16 -mr-1 ml-3 tracking-normal leading-none whitespace-nowrap bg-white rounded-2xl border border-pink-500 border-solid text-blue-950 text-opacity-80"> */}
       <img
           loading="lazy"
@@ -91,16 +138,26 @@ function Login() {
       </div>
         
         <button 
-          type="submit"
-          className="w-max self-stretch px-16 py-3 mt-8 mx-auto
-           text-xl text-white bg-pink-500 rounded-[33px]
+        onClick={handleLogin}
+          type="button"
+          className="w-[70%] self-stretch px-16 py-2 mt-8 mx-auto
+           text-xl text-white bg-pink-500 rounded-xl
            hover:bg-[rgba(232,240,254,0.5)] hover:text-pink-500 hover:border-pink-500 border-2 hover:transition-all duration-500 ease-in-out">
           {loading ?
-                    <FaSpinner fill='pink' size={30} className='animate-spin m-auto' />
+            <FaSpinner fill='pink' size={30} className='animate-spin m-auto' />
                     :
             'Log in'
           }
         </button>
+
+        <div className='bg-pink-500 w-[70%] flex items-center gap-x-8 px-4 py-2 rounded-xl
+         mt-4 text-white container m-auto max-w-full
+         hover:bg-[rgba(232,240,254,0.5)] hover:text-pink-500 hover:border-pink-500 border-2 hover:transition-all duration-500 ease-in-out'>
+          <FaGoogle fill="white" size={20} />
+          <GoogleLogin setUser={setUser}></GoogleLogin>
+            {user && user.username}
+				    {user && user.email}
+        </div>
 
         <Link className="p-2 italic text-xl mt-4 text-black" to={'/auth/register'}>
           Register as a New User
@@ -108,11 +165,13 @@ function Login() {
         <Link className="p-2 italic text-xl text-black" to={'/auth/forgot-password'}>
           Forgot Password
         </Link>
-      </form>
+      </div>
+
+      
 
       {/* Modal for displaying errors */}
       <Modal isOpen={showModal} onClose={closeModal}>
-        <p className="text-red-600 mx-auto w-auto">{errorReg}</p>
+        <p className="text-red-600 mx-auto w-auto">{ successReg || errorReg || 'Loading...'}</p>
       </Modal>
     </>
   );

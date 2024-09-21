@@ -185,7 +185,7 @@ function Counter() {
 
 
     return (
-        <div className='bg-white container max-w-[98%] p-2 shadow-md rounded-md flex flex-col gap-2
+        <div className='bg-white container mx-auto max-w-[98%] p-2 shadow-md rounded-md flex flex-col gap-2
         bg-gradient-to-r from-slate-500 via-slate-200 to-slate-900'>
 
             <Modal isOpen={showModal} onClose={closeModal}>
@@ -204,7 +204,7 @@ function Counter() {
                         <h1 className='p-2 font-medium text-2xl'>Counter</h1>
                         {console.log(getStoredUser() && getStoredUser()?.username)}
                         <h1 className='p-2 font-medium text-2xl'>{getStoredUser() && getStoredUser()?.username}</h1>
-                        <h1 className='p-2 font-medium text-2xl'>{getStoredToken() && getStoredToken()}</h1>
+                        {/* <h1 className='p-2 font-medium text-2xl'>{getStoredToken() && getStoredToken()}</h1> */}
                         <p className='p-3 text-white text-xl font-medium'>{counterValue}</p>
                         <p className='p-3 text-white text-xl font-medium'>{modulusValue}</p>
                         

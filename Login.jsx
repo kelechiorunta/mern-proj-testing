@@ -95,7 +95,7 @@ function Login() {
       <div 
         // onSubmit={handleLogin}
         className="container max-w- shadow-2xl rounded flex 
-        overflow-hidden flex-col items-center px-7 py-20 mx-auto w-full text-xl bg-white max-w-[480px]">
+        overflow-hidden flex-col items-center px-7 py-10 mx-auto my-[1.75%] w-full text-xl bg-white max-w-[480px]">
         
        <div className="text-5xl tracking-tight leading-none text-blue-950">
          Login
@@ -153,10 +153,17 @@ function Login() {
         <div className='bg-pink-500 w-[70%] flex items-center gap-x-8 px-4 py-2 rounded-xl
          mt-4 text-white container m-auto max-w-full
          hover:bg-[rgba(232,240,254,0.5)] hover:text-pink-500 hover:border-pink-500 border-2 hover:transition-all duration-500 ease-in-out'>
-          <FaGoogle fill="white" size={20} />
+          <FaGoogle 
+            style={{
+              // fill: 'white',
+              stroke: 'pink',
+              strokeWidth: '40px',
+            }}
+            fill="white" 
+            size={20} />
           <GoogleLogin setUser={setUser}></GoogleLogin>
-            {user && user.username}
-				    {user && user.email}
+            {/* {user && user.username}
+				    {user && user.email} */}
         </div>
 
         <Link className="p-2 italic text-xl mt-4 text-black" to={'/auth/register'}>

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { FaHamburger, FaSpinner } from 'react-icons/fa'
+import { FaHamburger, FaSignOutAlt, FaSpinner } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
@@ -8,6 +8,7 @@ import Modal from './Modal'
 import AuthContextComponent, { authContext } from './AuthContextComponent'
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { checkTokenValidity } from './utils/utils'
 
 const parentVariant = {
     hidden: {opacity:0, x:0, y:-200},
@@ -36,8 +37,9 @@ export default function MainHeader() {
     const [errorReg, setErrorReg] = useState(null);
     const [successReg, setSuccessReg] = useState(null);
     const [showModal, setShowModal] = useState(false); // State for the modal visibility
-    const [storedUser, setStoredUser] = useState(JSON.parse(localStorage.getItem('currentUser')))
+    const [storedUser, setStoredUser] = useState(JSON.parse(localStorage.getItem('signedInUser')))
     const { authUser, setAuthUser } = useContext(authContext)
+    const [istokenValid, setIsTokenValid] = useState(null)
 
     const closeModal = () => {
         setShowModal(false);
@@ -65,12 +67,17 @@ export default function MainHeader() {
             const response = await axios.get('http://localhost:8000/auth/logout', {withCredentials: true})
             console.log(response.data?.success)
             
-            setSuccessReg(`${authUser?.username}`+ response.data.success)
-           localStorage.removeItem('currentUser')
-           setStoredUser(null)
-           setAuthUser(null)
+            setSuccessReg(`${authUser?.username || authUser?.name || storedUser?.name}`+ response.data.success)
+            // localStorage.removeItem('currentUser')
+            var isValid = await checkTokenValidity()
+            setIsTokenValid(isValid)
+            localStorage.removeItem('signedInUser')
+
+            setStoredUser(null)
+            setAuthUser(null)
             // setShowModal(true);
             navigate(response?.data?.path || '/auth/login-user/'); 
+            // setLoading(false)
             // timerId = setTimeout(()=>{navigate(response?.data?.path); clearTimeout(timerId)}, 3000)
         }   
         catch(err){
@@ -83,51 +90,69 @@ export default function MainHeader() {
     }
 
   return (
-    <header className='max-w-full flex justify-between items-center text-white text-xl container
-    bg-[#1e4548] py-3 px-8 z-20 sticky top-0'>
-        {/* <Image
-        className='container max-w-[60px] w-[30%] h-[30%]'
+    <header className='max-w-full border-2 border-black  flex justify-between items-center text-white text-xl container
+    bg-[#1d68d7] py-3 px-8 z-20 sticky top-0'>
+        
+        <nav className={`font-bold uppercase container max-w-auto text-white flex items-center gap-4
+        xsm:max-sm:hidden`}>
+            <div className='flex justify-center gap-x-20 container text-white '>
+                <Link 
+                className={`hover_selected`}
+                to={'/'}>
+                    Home
+                </Link>
+                
+                <Link 
+                className={`hover_selected`}
+                to={'/chat'}>
+                    Chat
+                </Link>
+                <Link 
+                className={`hover_selected`}
+                to={'/inbox'}>
+                Inbox
+                </Link>
+                <Link 
+                className={`hover_selected`}
+                to={'/counter'}>
+                Counter
+                </Link>
+            </div>
+
+            <div className='flex gap-x-8 container w-[30%]'>
+                <button 
+                onClick={(authUser || localStorage.getItem('signedInUser')) && handlelogout}
+                className={`flex items-center gap-x-2 shadow-md rounded-md px-3 py-2 bg-white
+                text-[#1e4548] uppercase ${loading  && ' transition-all duration-200 ease-in-out animate-bounce bg-transparent font-semibold '}
+                 hover:bg-white hover:text-pink-500 font-bold transition-all duration-700 ease-in-out`}
+                >
+                    <FaSignOutAlt fill={'#1e4548'} size={20} />
+                {/* // {(!authUser || !localStorage.getItem('currentUser')) && '/auth/login-user'}> */}
+                {
+                // <Skeleton height={'auto'} width={100} className='animate-pulse m-auto'/>
+                // <FaSpinner fill='white' size={30} className='animate-spin m-auto w-max'/>  */}
+                //  : 
+                istokenValid || JSON.parse(localStorage.getItem('signedInUser')) ? 'Logout' : 'Login'
+                }
+                </button>
+                
+                <Link className='flex items-center gap-x-2 bg-pink-500 shadow-md
+                 rounded-md px-3 py-2 border-white border-2 hover:bg-white hover:text-pink-500 transition-all duration-700 ease-in-out'
+                // className={`${pathname==='/product' && 'active animate-bounce'}`}
+                to={'/auth/register'}>
+                    Sign Up
+                </Link>
+            </div>
+
+            {console.log(JSON.parse(localStorage.getItem('signedInUser')))}
+        {(authUser || JSON.parse(localStorage.getItem('signedInUser'))) &&
+        <img
+        className='container rounded-full shadow-xl max-w-[40px] w-[20%] h-[20%]'
         width={44}
         height={44}
-        src='/images/logo.png' 
-        alt='logo'/> */}
-
-        <nav className={`uppercase container max-w-full flex items-center justify-evenly gap-4
-        xsm:max-sm:hidden`}>
-            <Link 
-            // className={`${pathname==='/' && 'active animate-bounce'}`}
-            to={'/'}>
-                Home
-            </Link>
-            
-            <button 
-            onClick={(authUser || localStorage.getItem('currentUser')) && handlelogout}
-            className={`uppercase ${loading && ' transition-all duration-200 ease-in-out animate-bounce bg-transparent font-semibold '}`}
-            >
-            {/* // {(!authUser || !localStorage.getItem('currentUser')) && '/auth/login-user'}> */}
-            {
-            // <Skeleton height={'auto'} width={100} className='animate-pulse m-auto'/>
-            // <FaSpinner fill='white' size={30} className='animate-spin m-auto w-max'/>  */}
-            //  : 
-            authUser || localStorage.getItem('currentUser') ? 'Logout' : 'Login'
-            }
-            </button>
-            
-            <Link 
-            // className={`${pathname==='/product' && 'active animate-bounce'}`}
-            to={'/auth/register'}>
-                Sign Up
-            </Link>
-            <Link 
-            // className={`${pathname==='/about' && 'active animate-bounce'}`}
-            to={'/chat'}>
-                Chat
-            </Link>
-            <Link 
-            // className={`${pathname==='/contact' && 'active animate-bounce'}`}
-            to={'/inbox'}>
-               Inbox
-            </Link>
+        src={(authUser && authUser.image) || JSON.parse(localStorage.getItem('signedInUser'))?.image}
+        alt={(authUser && authUser.name) || JSON.parse(localStorage.getItem('signedInUser'))?.name}/>
+        }
         </nav>
         <nav 
         onClick={handleToggle}

@@ -7,9 +7,10 @@ export default function AuthContextComponent({children}) {
     const [authUser, setAuthUser] = useState(null)
     const [authUserToken, setAuthUserToken] = useState(null)
     useEffect(() => {
-        if (authUser && authUserToken) {
-          localStorage.setItem('currentUser', JSON.stringify(authUser));
-          localStorage.setItem('token', JSON.stringify(authUserToken))
+        if (authUser || authUserToken) {
+          //localStorage.setItem('signedInUser', JSON.stringify(result.data.data.user))
+           localStorage.setItem('signedInUser', JSON.stringify(authUser));
+          // localStorage.setItem('token', JSON.stringify(authUserToken))
         } else if(!authUserToken){
             console.log('Token expired')
         // //   localStorage.removeItem('currentUser');

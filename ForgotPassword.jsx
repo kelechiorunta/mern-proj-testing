@@ -46,7 +46,7 @@ export default function ForgotPassword() {
         await sideAction()
         try {
             const response = await axios.post(
-                `http://localhost:8000/auth/verifyUser/`, // Use email directly in URL
+                `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/auth/verifyUser/`, // Use email directly in URL
                 {
                     email: credentials.email, // You can include this in the body if required by the server
                 },
@@ -77,7 +77,7 @@ export default function ForgotPassword() {
         await sideAction()
         var timerId;
         try {
-          const response = await axios.post('http://localhost:8000/auth/confirm-token', { email: credentials.email, token }, {withCredentials:true});
+          const response = await axios.post(`http://localhost:${process.env.REACT_APP_BACKEND_PORT}/auth/confirm-token`, { email: credentials.email, token }, {withCredentials:true});
             console.log('Token validated! You can now reset your password.');
             setSuccessReg(response.data?.success);
             // await sideAction().then((res)=>

@@ -51,7 +51,7 @@ function Login() {
     await sideAction();
     var timerId;
     try {
-      const response = await axios.post("http://localhost:8000/auth/login-user", {
+      const response = await axios.post(`http://localhost:8000/auth/login-user`, {
         email: credentials.email,
         password: credentials.password,
       }, {withCredentials:true});

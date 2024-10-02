@@ -64,7 +64,7 @@ export default function MainHeader() {
         await sideAction();
         var timerId;
         try{
-            const response = await axios.get('http://localhost:8000/auth/logout', {withCredentials: true})
+            const response = await axios.get(`http://localhost:${process.env.REACT_APP_BACKEND_PORT}/auth/logout`, {withCredentials: true})
             console.log(response.data?.success)
             
             setSuccessReg(`${authUser?.username || authUser?.name || storedUser?.name}`+ response.data.success)

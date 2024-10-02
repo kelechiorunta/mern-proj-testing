@@ -84,7 +84,7 @@ function Counter() {
         var timerId;
         try{
             // setLoading(false)
-            const response = await axios.get('http://localhost:8000/auth/allusers',{ withCredentials: true })
+            const response = await axios.get(`http://localhost:${process.env.REACT_APP_BACKEND_PORT}/auth/allusers`,{ withCredentials: true })
             setApiResult((response.data?.foundUsers))
             localStorage.setItem('currentUser', JSON.stringify(response.data));
             setLoading(false)
@@ -163,7 +163,7 @@ function Counter() {
     const handleRegister = async(e) => {
         e.preventDefault();
         try{
-            const response = await axios.post('http://localhost:8000/auth/register', {
+            const response = await axios.post(`http://localhost:${process.env.REACT_APP_BACKEND_PORT}/auth/register`, {
                 username: credentials.name,
                 email: credentials.email,
                 password: credentials.password,

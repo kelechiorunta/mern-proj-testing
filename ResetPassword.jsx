@@ -45,7 +45,7 @@ function ResetPassword() {
         await sideAction()
         var timerId;
         try{
-            const response = await axios.post(`http://localhost:8000/auth/reset-password/`, {
+            const response = await axios.post(`http://localhost:${process.env.REACT_APP_BACKEND_PORT}/auth/reset-password/`, {
                 
                 email: credentials.email,
                 changePassword: credentials.changePassword,
